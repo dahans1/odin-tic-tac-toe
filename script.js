@@ -11,7 +11,11 @@ function Gameboard() {
     }
 
     const fillCell = ([row, col], player) => {
-        gameboard[row][col].setValue(player);
+        if (!gameboard[row][col].getValue()) {
+            gameboard[row][col].setValue(player);
+            return true;
+        }
+        return false;
     }
 
     const printBoard = () => {
@@ -36,18 +40,17 @@ function Cell() {
 
 function GameController(playerOne = 'X', playerTwo = 'O') {
     const board = Gameboard();
-    const players = [playerOne, playerTwo];
-
     let activePlayer = playerOne;
 
-    const switchActivePlayer = () => {
+    const switchTurns = () => {
         activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
     }
 
     const playRound = (row, col) => {
         console.log(`${activePlayer} is going into the cell (${row}, ${col}).`);
-        board.fillCell([row, col], activePlayer);
-        switchActivePlayer();
+        if (board.fillCell([row, col], activePlayer)) {
+            switchTurns();
+        }
     }
 
     const printBoard = () => board.printBoard();
@@ -60,5 +63,9 @@ for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
         game.playRound(i, j);
     }
+}
+game.printBoard();
+for (let i = 0; i < 3; i++) {
+    game.playRound(i, 0);
 }
 game.printBoard();
