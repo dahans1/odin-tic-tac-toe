@@ -1,0 +1,18 @@
+.board {
+    display: grid;
+    height: 500px;
+    width: 500px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.cell {
+    display: flex;
+    min-height: 200px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid gray;
+    font-size: 2rem;
+    align-self: center;
+    cursor: pointer;
+}

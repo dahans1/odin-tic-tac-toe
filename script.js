@@ -23,7 +23,9 @@ function Gameboard() {
         console.log(board);
     }
 
-    return { fillCell, printBoard };
+    const getBoard = () => gameboard;
+
+    return { fillCell, printBoard, getBoard };
 }
 
 function Cell() {
@@ -53,19 +55,55 @@ function GameController(playerOne = 'X', playerTwo = 'O') {
         }
     }
 
+    const getActivePlayer = () => activePlayer;
+
     const printBoard = () => board.printBoard();
 
-    return { playRound, printBoard };
+    return { playRound, getActivePlayer, printBoard, getBoard: board.getBoard };
 }
 
-const game = GameController();
-for (let i = 0; i < 3; i++) {
-    for (let j = 0; j < 3; j++) {
-        game.playRound(i, j);
+function ScreenController() {
+    const game = GameController();
+    const playerTurnHeader = document.querySelector('.turn');
+    const boardDiv = document.querySelector('.board');
+
+    const refreshScreen = () => {
+        // clear content
+        boardDiv.textContent = '';
+
+        // get latest version of board and player turn
+        const board = game.getBoard();
+        const activePlayer = game.getActivePlayer();
+
+        // display player's turn
+        playerTurnHeader.textContent = `Player ${activePlayer}'s turn.`;
+
+        // render board cells
+        board.forEach((row, rIndex) => {
+            row.forEach((cell, cIndex) => {
+                const cellButton = document.createElement('button');
+                cellButton.classList.add('cell');
+
+                // set data attribute for (row, col)
+                cellButton.dataset.pos = [rIndex, cIndex];
+
+                cellButton.textContent = cell.getValue();
+                boardDiv.appendChild(cellButton);
+            });
+        });
     }
-}
-game.printBoard();
-for (let i = 0; i < 3; i++) {
-    game.playRound(i, 0);
-}
-game.printBoard();
+
+    function clickCellHandler(e) {        
+        if (!e.target.dataset.pos) return;
+        
+        const [ row, col ] = e.target.dataset.pos.split(',');
+        game.playRound(row, col);
+        refreshScreen();
+    }
+    boardDiv.addEventListener('click', clickCellHandler);
+
+    // initial render
+    refreshScreen();
+} 
+
+ScreenController();
