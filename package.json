@@ -1,0 +1,9 @@
+{
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "modern-normalize": "^3.0.1"
+  }
+}
