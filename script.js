@@ -23,8 +23,32 @@ function Cell() {
 
     const getValue = () => value;
 
-    return { getValue };
+    const setValue = (player) => {
+        value = player;
+    }
+
+    return { getValue, setValue };
 }
 
-const game = Gameboard();
-game.printBoard();
+function GameController(playerOne = 'X', playerTwo = 'O') {
+    const board = Gameboard();
+    const players = [playerOne, playerTwo];
+
+    let activePlayer = playerOne;
+
+    const switchActivePlayer = () => {
+        activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
+    }
+
+    const playRound = () => {
+        console.log(`${activePlayer} is going into the next cell.`);
+        switchActivePlayer();
+    }
+
+    return { playRound };
+}
+
+const game = GameController();
+for (let i = 0; i < 7; i++) {
+    game.playRound();
+}
