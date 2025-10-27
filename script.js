@@ -23,9 +23,57 @@ function Gameboard() {
         console.log(board);
     }
 
+    const checkWinner = ([row, col], player) => {
+        // check main-diagonal
+        let win = true;
+        if (row == col) {
+            for (let i = 0; i < ROWS; i++) {
+                if (gameboard[i][i].getValue() !== player) {
+                    win = false;
+                    break;
+                }
+            }
+            if (win) return true;
+        }
+
+        // check anti-diagonal
+        if (parseInt(row) + parseInt(col) === ROWS - 1) {
+            win = true;
+            for (let i = 0; i < ROWS; i++) {
+                if (gameboard[i][ROWS - i - 1].getValue() !== player) {
+                    win = false;
+                    break;
+                }
+            }
+            if (win) return true;
+        }
+
+        // check horizontal
+        win = true;
+        for (let c = 0; c < COLS; c++) {
+            if (gameboard[row][c].getValue() !== player) {
+                win = false;
+                break;
+            }
+        }
+        if (win) return true;
+
+        // check vertical
+        win = true;
+        for (let r = 0; r < ROWS; r++) {
+            if (gameboard[r][col].getValue() !== player) {
+                win = false;
+                break;
+            }
+        }
+        if (win) return true;
+
+        return false;
+    }
+
     const getBoard = () => gameboard;
 
-    return { fillCell, printBoard, getBoard };
+    return { fillCell, checkWinner, printBoard, getBoard };
 }
 
 function Cell() {
@@ -43,15 +91,19 @@ function Cell() {
 function GameController(playerOne = 'X', playerTwo = 'O') {
     const board = Gameboard();
     let activePlayer = playerOne;
+    let gameOver = false;
 
     const switchTurns = () => {
         activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
     }
 
     const playRound = (row, col) => {
-        console.log(`${activePlayer} is going into the cell (${row}, ${col}).`);
-        if (board.fillCell([row, col], activePlayer)) {
-            switchTurns();
+        if (!gameOver && board.fillCell([row, col], activePlayer)) {
+            if (board.checkWinner([row, col], activePlayer)) {
+                gameOver = true;
+            } else {
+                switchTurns();
+            }
         }
     }
 
@@ -59,7 +111,9 @@ function GameController(playerOne = 'X', playerTwo = 'O') {
 
     const printBoard = () => board.printBoard();
 
-    return { playRound, getActivePlayer, printBoard, getBoard: board.getBoard };
+    const getGameStatus = () => !gameOver;
+
+    return { playRound, getActivePlayer, printBoard, getGameStatus, getBoard: board.getBoard };
 }
 
 function ScreenController() {
@@ -74,9 +128,14 @@ function ScreenController() {
         // get latest version of board and player turn
         const board = game.getBoard();
         const activePlayer = game.getActivePlayer();
+        const gameStatus = game.getGameStatus();
 
         // display player's turn
-        playerTurnHeader.textContent = `Player ${activePlayer}'s turn.`;
+        if (gameStatus) {
+            playerTurnHeader.textContent = `Player ${activePlayer}'s turn.`;
+        } else {
+            playerTurnHeader.textContent = `Player ${activePlayer} WON!!!`;
+        }
 
         // render board cells
         board.forEach((row, rIndex) => {
