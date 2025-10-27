@@ -91,16 +91,21 @@ function Cell() {
 function GameController(playerOne = 'X', playerTwo = 'O') {
     const board = Gameboard();
     let activePlayer = playerOne;
-    let gameOver = false;
+    let gameActive = true;
+    let rounds = 0;
 
     const switchTurns = () => {
         activePlayer = activePlayer == playerOne ? playerTwo : playerOne;
     }
 
     const playRound = (row, col) => {
-        if (!gameOver && board.fillCell([row, col], activePlayer)) {
+        rounds += 1;
+        if (gameActive && board.fillCell([row, col], activePlayer)) {
             if (board.checkWinner([row, col], activePlayer)) {
-                gameOver = true;
+                gameActive = false;
+            } else if (rounds == 9) {
+                gameActive = false;
+                activePlayer = null;
             } else {
                 switchTurns();
             }
@@ -111,7 +116,7 @@ function GameController(playerOne = 'X', playerTwo = 'O') {
 
     const printBoard = () => board.printBoard();
 
-    const getGameStatus = () => !gameOver;
+    const getGameStatus = () => gameActive;
 
     return { playRound, getActivePlayer, printBoard, getGameStatus, getBoard: board.getBoard };
 }
@@ -133,6 +138,8 @@ function ScreenController() {
         // display player's turn
         if (gameStatus) {
             playerTurnHeader.textContent = `Player ${activePlayer}'s turn.`;
+        } else if (!activePlayer) {
+            playerTurnHeader.textContent = `It's a tie!`;
         } else {
             playerTurnHeader.textContent = `Player ${activePlayer} WON!!!`;
         }
